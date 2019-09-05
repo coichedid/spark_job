@@ -1,0 +1,33 @@
+{
+  "name": "spark_job",
+  "version": "0.0.1",
+  "description": "Script spark para processamento de dados de carga elétrica e captura de proveniência.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coichedid/spark_job.git"
+  },
+  "keywords": [
+    "spark",
+    "provenance",
+    "proveniencia"
+  ],
+  "author": "Clovis Chedid",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coichedid/spark_job/issues"
+  },
+  "homepage": "https://github.com/coichedid/spark_job#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-git": "^2.9.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-shell": "^0.7.1",
+    "gulp-util": "^3.0.8",
+    "run-sequence": "^2.2.1",
+    "yargs": "^14.0.0"
+  }
+}

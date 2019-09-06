@@ -58,6 +58,15 @@ Os pontos relevantes para extração de proveniência foram marcados com a expre
 
 Analisar o código e ver se existem mais pontos interessantes.
 
+Os arquivos a serem interceptados são:
+
+* [main.py](https://github.com/coichedid/spark_job/blob/master/main.py)
+* [spark_job/ProcessadorSpark.py](https://github.com/coichedid/spark_job/blob/master/spark_job/ProcessadorSpark.py)
+
+Pesquise pelo `# TODO: ...` no corpo dos dois arquivos e utilize a variável `stats` para pegar os dados relevantes.
+
+A variável `stats` é um dict. Você acessa seus atributos como um hashmap: `stats['task']` ou `stats['attributes']['aggregation_unit']`, por exemplo.
+
 ## Instruções de execução
 
 Na pasta do projeto, executar os comandos:

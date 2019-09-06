@@ -22,7 +22,7 @@ def extractDictAFromB(A,B):
     return dict([(k,B[k]) for k in A.keys() if k in B.keys()])
 
 
-def load_pandas_dataframe(filename):
+def load_pandas_dataframe(filename, sep):
     """Carrega um dos arquivos CSV existentes na pasta "tests/data".
 
     :param string filename: Nome do arquivo CSV.
@@ -31,20 +31,22 @@ def load_pandas_dataframe(filename):
 
     """
 
-    df = pd.read_csv(filename)
+    df = pd.read_csv(filename, sep=sep)
     return df
 
-def register_spark_table(table_name, pandas_df, spark):
+def register_spark_table(table_name, original_df, spark, cast = True):
     """Cria uma tabela no spark a partir de um dataframe pandas.
 
     :param string table_name: Nome da tabela a ser registrada.
-    :param pandas.DataFrame pandas_df: Dataframe que será registrado como tabela.
+    :param pandas.DataFrame original_df: Dataframe que será registrado como tabela.
     :param pyspark.sql.SparkSession spark: Sessão do spark local.
     :return:
     :rtype: void
 
     """
-    df = spark.createDataFrame(pandas_df)
+    df = original_df
+    if cast:
+        df = spark.createDataFrame(df)
     df.registerTempTable(table_name)
 
 def removeSparkTable(table_name, spark):
@@ -72,7 +74,7 @@ def get_logger():
     logger.setLevel(logging.INFO)
     return logger
 
-def castDateTime(df, col):
+def cast_datetime(df, col):
     """Converte uma coluna string em um datetime.
 
     :param pandas.DataFrame df: Dataframe contendo a coluna a ser transformada.
@@ -84,6 +86,18 @@ def castDateTime(df, col):
     df[col] = pd.to_datetime(df[col])
     return df
 
+def cast_string(df, col):
+    """Converte uma coluna string em um datetime.
+
+    :param pandas.DataFrame df: Dataframe contendo a coluna a ser transformada.
+    :param string col: Nome da coluna para ser convertida.
+    :return: Dataframe atualizado.
+    :rtype: pandas.DataFrame
+
+    """
+    df[col] = df[col].apply(str)
+    return df
+
 def get_spark_session():
     """ creating a spark context"""
     conf = (SparkConf().setMaster("local[2]").setAppName("spark_job"))
@@ -92,3 +106,14 @@ def get_spark_session():
     sk.sparkContext.setLogLevel("WARN")
 
     return (sc, sk)
+
+def deserialize_params(params):
+    """Interpreta a string passada como valor;valor e retorna uma lista
+
+    :param string params: Serialização da coleção de valor separado por ponto e virgula.
+    :return: Lista de valores.
+    :rtype: list(string)
+
+    """
+
+    return params.split(';')

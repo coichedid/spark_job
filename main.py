@@ -58,7 +58,7 @@ if __name__ == "__main__":
     df = Dataflow(dataflow_tag)
 
     logger.info('Inicializando o processador Spark')
-    processador = ProcessadorSparkClass(logger, spark, df)
+    processador = ProcessadorSparkClass(logger, spark, df, dataflow_tag)
 
     ##PROVENIÊNCIA PROSPECTIVA
     #Transformação para extrair o primeiro stats: ExtrairStats1

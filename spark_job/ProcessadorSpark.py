@@ -19,7 +19,7 @@ sys.path.append(os.path.abspath('../'))
 import helpers
 class ProcessadorSparkClass(object):
     """Classe de processamento de dados com spark"""
-    def __init__(self, logger, spark_session, data_flow):
+    def __init__(self, logger, spark_session, data_flow, dataflow_tag):
         """Construtor.
 
         :param logging logger: instancia de logging.
@@ -32,6 +32,7 @@ class ProcessadorSparkClass(object):
         self.logger = logger
         self.spark = spark_session
         self.data_flow = data_flow
+        self.dataflow_tag = dataflow_tag
         self.logger.info('Processador inicializado com sucesso.')
 
     def load_pandas_data(self, datafiles, sep):
@@ -148,7 +149,7 @@ class ProcessadorSparkClass(object):
         self.data_flow.add_transformation(tf1)
         self.data_flow.save()
 
-        t1 = Task(3, dataflow_tag, "aggreg_geracao", "2")
+        t1 = Task(3, self.dataflow_tag, "aggreg_geracao", "2")
         t1_input = DataSet("i{}1".format('aggreg_geracao'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
         t1.add_dataset(t1_input)
         t1.begin()
@@ -218,7 +219,7 @@ class ProcessadorSparkClass(object):
         self.data_flow.add_transformation(tf1)
         self.data_flow.save()
 
-        t1 = Task(3, dataflow_tag, "aggreg_intercambio", "3")
+        t1 = Task(3, self.dataflow_tag, "aggreg_intercambio", "3")
         t1_input = DataSet("i{}1".format('aggreg_intercambio'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
         t1.add_dataset(t1_input)
         t1.begin()
@@ -291,7 +292,7 @@ class ProcessadorSparkClass(object):
         self.data_flow.add_transformation(tf1)
         self.data_flow.save()
 
-        t1 = Task(3, dataflow_tag, "calculate_carga", "4")
+        t1 = Task(3, self.dataflow_tag, "calculate_carga", "4")
         t1_input = DataSet("i{}1".format('calculate_carga'), [Element([datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
         t1.add_dataset(t1_input)
         t1.begin()

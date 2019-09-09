@@ -175,11 +175,11 @@ class ProcessadorSparkClass(object):
         runtime = time.time() - st_time
         stats = {
             'task': 'aggregate_geracao',
-            'current_time': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-            'elapsed_time': runtime,
+            'currenttime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            'elapsedtime': runtime,
             'attributes':{
-                'aggregation_unit': aggreg_unit,
-                'table_name': table_name,
+                'aggregationunit': aggreg_unit,
+                'tablename': table_name,
                 'count': c
             }
         }
@@ -241,11 +241,11 @@ class ProcessadorSparkClass(object):
         runtime = time.time() - st_time
         stats = {
             'task': 'aggregate_intercambio',
-            'current_time': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-            'elapsed_time': runtime,
+            'currenttime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            'elapsedtime': runtime,
             'attributes':{
-                'aggregation_unit': aggreg_unit,
-                'table_name': table_name,
+                'aggregationunit': aggreg_unit,
+                'tablename': table_name,
                 'count': c
             }
         }
@@ -356,8 +356,8 @@ class ProcessadorSparkClass(object):
         runtime_total = time.time() - st_time_total
         stats = {
             'task': 'calculate_carga',
-            'current_time': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-            'elapsed_time': runtime_total,
+            'currenttime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            'elapsedtime': runtime_total,
             'attributes':{
                 'aggregation_unit': aggreg_unit,
                 'elapsed_time_load_geracao': runtime_load_geracao,

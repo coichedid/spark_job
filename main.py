@@ -1,3 +1,15 @@
+
+from dfa_lib_python.dataflow import Dataflow
+from dfa_lib_python.transformation import Transformation
+from dfa_lib_python.attribute import Attribute
+from dfa_lib_python.attribute_type import AttributeType
+from dfa_lib_python.set import Set
+from dfa_lib_python.set_type import SetType
+from dfa_lib_python.task import Task
+from dfa_lib_python.dataset import DataSet
+from dfa_lib_python.element import Element
+
+##################
 import os
 import sys
 import time
@@ -6,7 +18,34 @@ import datetime
 import helpers
 from spark_job.ProcessadorSpark import ProcessadorSparkClass
 
+#PROVENIÊNCIA
+############################
 
+dataflow_tag = "prov-df"
+df = Dataflow(dataflow_tag)
+
+##PROVENIÊNCIA PROSPECTIVA
+#Transformação para extrair o primeiro stats: ExtrairStats1
+tf1 = Transformation("ExtrairStats1")
+tf1_input = Set("iExtrairStats1", SetType.INPUT,
+    [Attribute("STATS1", AttributeType.TEXT)])
+
+tf1_output = Set("oExtrairStats1", SetType.OUTPUT,
+  [Attribute("task", AttributeType.TEXT),
+  Attribute("current_time", AttributeType.TEXT),
+  Attribute("datafiles", AttributeType.TEXT),
+  Attribute("tables", AttributeType.TEXT),
+  Attribute("aggregation_unit", AttributeType.TEXT),
+  Attribute("csv_separator", AttributeType.TEXT)])
+
+tf1.set_sets([tf1_input, tf1_output])
+df.add_transformation(tf1)
+df.save()
+
+t1 = Task(1, dataflow_tag, "ExtrairStats1")
+t1_input = DataSet("iExtrairStats1", [Element([task, current_time, datafiles, tables, aggregation_unit, csv_separator])])
+t1.add_dataset(t1_input)
+t1.begin()
 
 if __name__ == "__main__":
     st_time_total = time.time()
@@ -39,9 +78,24 @@ if __name__ == "__main__":
             'aggregation_unit': aggreg_unit,
             'csv_separator': sep
         }
+
     }
     # TODO: Publicar o início do fluxo com a variavel stats
-
+    #######################
+    # Finalizando extracao de proveniencia
+    '''
+    t1_output = DataSet("oExtrairStats1", [Element([["task"], ["current_time"], ["datafiles"], ["tables"], ["aggregation_unit"], ["csv_separator"]])])
+    t1.add_dataset(t1_output)
+    t1.end()
+    '''
+    ############
+    
+    t1_output = DataSet("oExtrairStats1", [Element([task, current_time, datafiles, tables, aggregation_unit, csv_separator])])
+    t1.add_dataset(t1_output)
+    t1.end()
+    ################# 
+    print(stats)
+    
     st_time = time.time()
     processador.load_data(lista_datafiles, lista_tabelas, sep)
     runtime = time.time() - st_time
@@ -120,3 +174,5 @@ if __name__ == "__main__":
 
     logger.info(stats)
     sc.stop()
+
+

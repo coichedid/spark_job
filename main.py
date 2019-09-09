@@ -54,7 +54,7 @@ if __name__ == "__main__":
     #PROVENIÊNCIA
     ############################
 
-    dataflow_tag = "prov-df"
+    dataflow_tag = "prov-df-{}".format(aggreg_unit)
     df = Dataflow(dataflow_tag)
 
     logger.info('Inicializando o processador Spark')

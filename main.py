@@ -82,8 +82,8 @@ if __name__ == "__main__":
     df.add_transformation(tf1)
     df.save()
 
-    t1 = Task(1, dataflow_tag, "load_data")
-    t1_input = DataSet("i{}1".format('load_data'), [Element([','.join(stats['attributes']['datafiles']),','.join(stats['attributes']['tables']), stats['currenttime'], stats['attributes']['aggregationunit'], stats['attributes']['csvseparator']])])
+    t1 = Task(1, dataflow_tag, "load_data", "1")
+    t1_input = DataSet("i{}1".format('load_data'), [Element([';'.join(stats['attributes']['datafiles']),';'.join(stats['attributes']['tables']), stats['currenttime'], stats['attributes']['aggregationunit'], stats['attributes']['csvseparator']])])
     t1.add_dataset(t1_input)
     t1.begin()
 

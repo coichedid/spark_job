@@ -183,7 +183,7 @@ if __name__ == "__main__":
     t3.begin()
 
     st_time = time.time()
-    df = processador.process_data(aggreg_unit)
+    df_carga = processador.process_data(aggreg_unit)
     runtime = time.time() - st_time
     stats = {
         'task': 'process_data',
@@ -225,7 +225,7 @@ if __name__ == "__main__":
 
     # TODO: Publicar execução do process_data com a variável stats
     st_time = time.time()
-    lista_carga = processador.convert_spark_df_to_list(df)
+    lista_carga = processador.convert_spark_df_to_list(df_carga)
     runtime_conv = time.time() - st_time
     stats = {
         'task': 'convert_data_to_list',

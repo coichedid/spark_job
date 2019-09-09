@@ -118,6 +118,29 @@ class ProcessadorSparkClass(object):
 
         """
         st_time = time.time()
+        tf1 = Transformation('aggreg_geracao') ## Usando o nome da task spark
+        tf1_input = Set("i{}1".format('aggreg_geracao'), SetType.INPUT,
+            [
+                Attribute("tablename", AttributeType.TEXT),
+                Attribute("currenttime", AttributeType.TEXT),
+                Attribute("aggregationunit", AttributeType.TEXT)
+            ])
+
+        tf1_output = Set("o{}1".format('aggreg_intercambio'), SetType.OUTPUT,
+          [
+                Attribute("currenttime", AttributeType.TEXT),
+                Attribute("elapsedtime", AttributeType.NUMERIC),
+                Attribute("recordcount", AttributeType.NUMERIC)
+          ])
+
+        tf1.set_sets([tf1_input, tf1_output])
+        self.df.add_transformation(tf1)
+        df.save()
+
+        t1 = Task(3, dataflow_tag, "aggreg_geracao", "2")
+        t1_input = DataSet("i{}1".format('aggreg_geracao'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
+        t1.add_dataset(t1_input)
+        t1.begin()
         sql = ''
         if aggreg_unit == 'diario':
             sql = """
@@ -149,6 +172,9 @@ class ProcessadorSparkClass(object):
             }
         }
         # TODO: Publicar a execução da agregação de geracao com a variável stats
+        t1_output = DataSet("o{}1".format('aggreg_geracao'), [Element([stats['currenttime'],stats['elapsedtime'], stats['attributes']['count']])])
+        t1.add_dataset(t1_output)
+        t1.end()
         self.logger.info(stats)
         return df
 
@@ -162,6 +188,29 @@ class ProcessadorSparkClass(object):
 
         """
         st_time = time.time()
+        tf1 = Transformation('aggreg_intercambio') ## Usando o nome da task spark
+        tf1_input = Set("i{}1".format('aggreg_intercambio'), SetType.INPUT,
+            [
+                Attribute("tablename", AttributeType.TEXT),
+                Attribute("currenttime", AttributeType.TEXT),
+                Attribute("aggregationunit", AttributeType.TEXT)
+            ])
+
+        tf1_output = Set("o{}1".format('aggreg_intercambio'), SetType.OUTPUT,
+          [
+                Attribute("currenttime", AttributeType.TEXT),
+                Attribute("elapsedtime", AttributeType.NUMERIC),
+                Attribute("recordcount", AttributeType.NUMERIC)
+          ])
+
+        tf1.set_sets([tf1_input, tf1_output])
+        self.df.add_transformation(tf1)
+        df.save()
+
+        t1 = Task(3, dataflow_tag, "aggreg_intercambio", "3")
+        t1_input = DataSet("i{}1".format('aggreg_intercambio'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
+        t1.add_dataset(t1_input)
+        t1.begin()
         sql = ''
         if aggreg_unit == 'diario':
             sql = """
@@ -189,6 +238,9 @@ class ProcessadorSparkClass(object):
             }
         }
         # TODO: Publicar a execução da agregação de geracao com a variável stats
+        t1_output = DataSet("o{}1".format('aggreg_intercambio'), [Element([stats['currenttime'],stats['elapsedtime'], stats['attributes']['count']])])
+        t1.add_dataset(t1_output)
+        t1.end()
         self.logger.info(stats)
         return df
 
@@ -204,6 +256,34 @@ class ProcessadorSparkClass(object):
         """
         st_time = time.time()
         st_time_total = time.time()
+        tf1 = Transformation('calculate_carga') ## Usando o nome da task spark
+        tf1_input = Set("i{}1".format('calculate_carga'), SetType.INPUT,
+            [
+                Attribute("currenttime", AttributeType.TEXT),
+                Attribute("aggregationunit", AttributeType.TEXT)
+            ])
+
+        tf1_output = Set("o{}1".format('calculate_carga'), SetType.OUTPUT,
+          [
+                Attribute("currenttime", AttributeType.TEXT),
+                Attribute("elapsedtime", AttributeType.NUMERIC),
+                Attribute("elapsedtimeloadgeracao", AttributeType.NUMERIC),
+                Attribute("elapsedtimeloadintercambio", AttributeType.NUMERIC),
+                Attribute("elapsedtimeloadcarga", AttributeType.NUMERIC),
+                Attribute("elapsedtimecalccarga", AttributeType.NUMERIC),
+                Attribute("elapsedtimecalcstats", AttributeType.NUMERIC),
+                Attribute("subsistemamaisdemandante", AttributeType.TEXT),
+                Attribute("valormaisalto", AttributeType.NUMERIC)
+          ])
+
+        tf1.set_sets([tf1_input, tf1_output])
+        self.df.add_transformation(tf1)
+        df.save()
+
+        t1 = Task(3, dataflow_tag, "calculate_carga", "4")
+        t1_input = DataSet("i{}1".format('calculate_carga'), [Element([datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
+        t1.add_dataset(t1_input)
+        t1.begin()
         helpers.register_spark_table('geracao_aggr', df_geracao, self.spark, False)
         runtime_load_geracao = time.time() - st_time
 
@@ -277,6 +357,30 @@ class ProcessadorSparkClass(object):
                 'valor_mais_alto': valor_mais_alto
             }
         }
+        # Attribute("currenttime", AttributeType.TEXT),
+        # Attribute("elapsedtime", AttributeType.NUMERIC),
+        # Attribute("elapsedtimeloadgeracao", AttributeType.NUMERIC),
+        # Attribute("elapsedtimeloadintercambio", AttributeType.NUMERIC),
+        # Attribute("elapsedtimeloadcarga", AttributeType.NUMERIC),
+        # Attribute("elapsedtimecalccarga", AttributeType.NUMERIC),
+        # Attribute("elapsedtimecalcstats", AttributeType.NUMERIC),
+        # Attribute("subsistemamaisdemandante", AttributeType.TEXT),
+        # Attribute("valormaisalto", AttributeType.NUMERIC)
+        t1_output = DataSet("o{}1".format('calculate_carga'),
+            [
+                Element([
+                    stats['currenttime'],
+                    stats['elapsedtime'],
+                    stats['attributes']['elapsed_time_load_geracao'],
+                    stats['attributes']['elapsed_time_load_intercambio'],
+                    stats['attributes']['elapsed_time_load_carga'],
+                    stats['attributes']['elapsed_time_calc_carga'],
+                    stats['attributes']['elapsed_time_stats'],
+                    stats['attributes']['subsistema_mais_demandante'],
+                    stats['attributes']['valor_mais_alto']
+                    ])])
+        t1.add_dataset(t1_output)
+        t1.end()
         # TODO: Publicar calculo da carga com a variável df_stats
         self.logger.info(stats)
         return df_carga

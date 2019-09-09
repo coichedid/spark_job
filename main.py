@@ -18,41 +18,10 @@ import datetime
 import helpers
 from spark_job.ProcessadorSpark import ProcessadorSparkClass
 
-#PROVENIÊNCIA
-############################
-
-dataflow_tag = "prov-df"
-df = Dataflow(dataflow_tag)
-
-##PROVENIÊNCIA PROSPECTIVA
-#Transformação para extrair o primeiro stats: ExtrairStats1
-tf1 = Transformation("ExtrairStats1")
-tf1_input = Set("iExtrairStats1", SetType.INPUT,
-    [Attribute("STATS1", AttributeType.TEXT)])
-
-tf1_output = Set("oExtrairStats1", SetType.OUTPUT,
-  [Attribute("task", AttributeType.TEXT),
-  Attribute("current_time", AttributeType.TEXT),
-  Attribute("datafiles", AttributeType.TEXT),
-  Attribute("tables", AttributeType.TEXT),
-  Attribute("aggregation_unit", AttributeType.TEXT),
-  Attribute("csv_separator", AttributeType.TEXT)])
-
-tf1.set_sets([tf1_input, tf1_output])
-df.add_transformation(tf1)
-df.save()
-
-t1 = Task(1, dataflow_tag, "ExtrairStats1")
-t1_input = DataSet("iExtrairStats1", [Element([task, current_time, datafiles, tables, aggregation_unit, csv_separator])])
-t1.add_dataset(t1_input)
-t1.begin()
-
 if __name__ == "__main__":
     st_time_total = time.time()
     logger = helpers.get_logger()
     (sc,spark) = helpers.get_spark_session()
-    logger.info('Inicializando o processador Spark')
-    processador = ProcessadorSparkClass(logger, spark)
     args = sys.argv
 
     if '--datafiles' not in args or '--table_names' not in args or '--aggreg_unit' not in args or '--sep' not in args:
@@ -62,6 +31,7 @@ if __name__ == "__main__":
             - aggreg_unit: [diario, mensal]
         """
         raise Exception(error)
+
     # lista_datafiles = ['tb1', 'tb2', 'tb3', 'tb4', 'tb5', 'tb6', ]
     # lista_tabelas = ['sp_tb1', 'sp_tb2', 'sp_tb3', 'sp_tb4', 'sp_tb5', 'sp_tb6', ]
     lista_datafiles = helpers.deserialize_params(args[2])
@@ -80,22 +50,43 @@ if __name__ == "__main__":
         }
 
     }
-    # TODO: Publicar o início do fluxo com a variavel stats
-    #######################
-    # Finalizando extracao de proveniencia
-    '''
-    t1_output = DataSet("oExtrairStats1", [Element([["task"], ["current_time"], ["datafiles"], ["tables"], ["aggregation_unit"], ["csv_separator"]])])
-    t1.add_dataset(t1_output)
-    t1.end()
-    '''
-    ############
-    
-    t1_output = DataSet("oExtrairStats1", [Element([task, current_time, datafiles, tables, aggregation_unit, csv_separator])])
-    t1.add_dataset(t1_output)
-    t1.end()
-    ################# 
-    print(stats)
-    
+
+    #PROVENIÊNCIA
+    ############################
+
+    dataflow_tag = "prov-df"
+    df = Dataflow(dataflow_tag)
+
+    logger.info('Inicializando o processador Spark')
+    processador = ProcessadorSparkClass(logger, spark, data_flow)
+
+    ##PROVENIÊNCIA PROSPECTIVA
+    #Transformação para extrair o primeiro stats: ExtrairStats1
+    tf1 = Transformation('load_data') ## Usando o nome da task spark
+    tf1_input = Set("i{}1".format('load_data'), SetType.INPUT,
+        [
+            Attribute("datafiles", AttributeType.TEXT),
+            Attribute("tables", AttributeType.TEXT),
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("aggregation_unit", AttributeType.TEXT),
+            Attribute("csv_separator", AttributeType.TEXT)
+        ])
+
+    tf1_output = Set("o{}1".format('load_data'), SetType.OUTPUT,
+      [
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("elapsed_time", AttributeType.NUMERIC)
+      ])
+
+    tf1.set_sets([tf1_input, tf1_output])
+    df.add_transformation(tf1)
+    df.save()
+
+    t1 = Task(1, dataflow_tag, "LoadData1")
+    t1_input = DataSet("i{}1".format('load_data'), [Element([','.join(stats['attributes']['datafiles']),','.join(stats['attributes']['tables'], stats['current_time'], stats['attributes']['aggregation_unit'], stats['attributes']['csv_separator'])])])
+    t1.add_dataset(t1_input)
+    t1.begin()
+
     st_time = time.time()
     processador.load_data(lista_datafiles, lista_tabelas, sep)
     runtime = time.time() - st_time
@@ -106,7 +97,39 @@ if __name__ == "__main__":
         'elapsed_time': runtime
     }
 
+    # TODO: Publicar o início do fluxo com a variavel stats
+    #######################
+    # Finalizando extracao de proveniencia
+    ############
+
+    t1_output = DataSet("o{}1".format('load_data'), [Element([stats['current_time'],stats['elapsed_time']])])
+    t1.add_dataset(t1_output)
+    t1.end()
+    #################
+
     # TODO: Publicar o tempo para carregar as tabelas com a variavel stats
+
+    ##PROVENIÊNCIA PROSPECTIVA
+    #Transformação para extrair o primeiro stats: ExtrairStats1
+    tf2 = Transformation('initial_data_stats') ## Usando o nome da task spark
+    tf2_input = Set("i{}1".format('initial_data_stats'), SetType.INPUT,
+        [
+            Attribute("current_time", AttributeType.TEXT)
+        ])
+
+    tf2_output = Set("o{}1".format('load_data'), SetType.OUTPUT,
+      [
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("elapsed_time", AttributeType.NUMERIC)
+      ])
+
+    tf2.set_sets([tf2_input, tf2_output])
+    df.add_transformation(tf2)
+    df.save()
+    t2 = Task(2, dataflow_tag, "initial_data_stats1")
+    t2_input = DataSet("i{}1".format('initial_data_stats'), [Element([datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
+    t2.add_dataset(t2_input)
+    t2.begin()
 
     st_time = time.time()
     stats = processador.get_initial_data_stats()
@@ -117,6 +140,9 @@ if __name__ == "__main__":
         'elapsed_time': runtime,
         'attributes':stats
     }
+    t2_output = DataSet("o{}1".format('initial_data_stats'), [Element([stats['current_time'],stats['elapsed_time']])])
+    t2.add_dataset(t2_output)
+    t2.end()
     # TODO: Publicar as estatisticas do dados carregados
     # Estrutura da variavel stats:
     # {
@@ -132,6 +158,30 @@ if __name__ == "__main__":
     logger.info('Estatisticas dos dados:')
     logger.info(stats)
 
+    ##PROVENIÊNCIA PROSPECTIVA
+    #Transformação para extrair o primeiro stats: ExtrairStats1
+    tf3 = Transformation('process_data') ## Usando o nome da task spark
+    tf3_input = Set("i{}1".format('process_data'), SetType.INPUT,
+        [
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("aggregation_unit", AttributeType.TEXT)
+        ])
+
+    tf3_output = Set("o{}1".format('process_data'), SetType.OUTPUT,
+      [
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("elapsed_time", AttributeType.NUMERIC)
+      ])
+
+    tf3.set_sets([tf3_input, tf3_output])
+    df.add_transformation(tf3)
+    df.save()
+
+    t3 = Task(3, dataflow_tag, "process_data")
+    t3_input = DataSet("i{}1".format('process_data'), [Element([aggreg_unit, datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
+    t3.add_dataset(t2_input)
+    t3.begin()
+
     st_time = time.time()
     df = processador.process_data(aggreg_unit)
     runtime = time.time() - st_time
@@ -143,6 +193,36 @@ if __name__ == "__main__":
             'aggreg_unit': aggreg_unit
         }
     }
+
+    t3_output = DataSet("o{}1".format('process_data'), [Element([stats['current_time'],stats['elapsed_time']])])
+    t3.add_dataset(t3_output)
+    t3.end()
+
+    ##PROVENIÊNCIA PROSPECTIVA
+    #Transformação para extrair o primeiro stats: ExtrairStats1
+    tf4 = Transformation('convert_data_to_list') ## Usando o nome da task spark
+    tf4_input = Set("i{}1".format('convert_data_to_list'), SetType.INPUT,
+        [
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("aggregation_unit", AttributeType.TEXT)
+        ])
+
+    tf4_output = Set("o{}1".format('convert_data_to_list'), SetType.OUTPUT,
+      [
+            Attribute("current_time", AttributeType.TEXT),
+            Attribute("elapsed_time", AttributeType.NUMERIC),
+            Attribute("num_records", AttributeType.NUMERIC)
+      ])
+
+    tf4.set_sets([tf4_input, tf4_output])
+    df.add_transformation(tf4)
+    df.save()
+
+    t4 = Task(4, dataflow_tag, "convert_data_to_list")
+    t4_input = DataSet("i{}1".format('convert_data_to_list'), [Element([aggreg_unit, datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
+    t4.add_dataset(t2_input)
+    t4.begin()
+
     # TODO: Publicar execução do process_data com a variável stats
     st_time = time.time()
     lista_carga = processador.convert_spark_df_to_list(df)
@@ -155,6 +235,11 @@ if __name__ == "__main__":
             'carga':lista_carga
         }
     }
+
+    t4_output = DataSet("o{}1".format('convert_data_to_list'), [Element([stats['current_time'],stats['elapsed_time'], len(lista_carga)])])
+    t4.add_dataset(t4_output)
+    t4.end()
+
     # TODO: Publicar a conversão de dados da carga com a variável stats
     logger.info(stats)
     logger.info(lista_carga)
@@ -174,5 +259,3 @@ if __name__ == "__main__":
 
     logger.info(stats)
     sc.stop()
-
-

@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath('../'))
 import helpers
 class ProcessadorSparkClass(object):
     """Classe de processamento de dados com spark"""
-    def __init__(self, logger, spark_session):
+    def __init__(self, logger, spark_session, data_flow):
         """Construtor.
 
         :param logging logger: instancia de logging.
@@ -20,6 +20,7 @@ class ProcessadorSparkClass(object):
         super(ProcessadorSparkClass, self).__init__()
         self.logger = logger
         self.spark = spark_session
+        self.data_flow = data_flow
         self.logger.info('Processador inicializado com sucesso.')
 
     def load_pandas_data(self, datafiles, sep):

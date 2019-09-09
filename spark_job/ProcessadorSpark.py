@@ -145,8 +145,8 @@ class ProcessadorSparkClass(object):
           ])
 
         tf1.set_sets([tf1_input, tf1_output])
-        self.df.add_transformation(tf1)
-        df.save()
+        self.data_flow.add_transformation(tf1)
+        self.data_flow.save()
 
         t1 = Task(3, dataflow_tag, "aggreg_geracao", "2")
         t1_input = DataSet("i{}1".format('aggreg_geracao'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
@@ -215,8 +215,8 @@ class ProcessadorSparkClass(object):
           ])
 
         tf1.set_sets([tf1_input, tf1_output])
-        self.df.add_transformation(tf1)
-        df.save()
+        self.data_flow.add_transformation(tf1)
+        self.data_flow.save()
 
         t1 = Task(3, dataflow_tag, "aggreg_intercambio", "3")
         t1_input = DataSet("i{}1".format('aggreg_intercambio'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
@@ -288,8 +288,8 @@ class ProcessadorSparkClass(object):
           ])
 
         tf1.set_sets([tf1_input, tf1_output])
-        self.df.add_transformation(tf1)
-        df.save()
+        self.data_flow.add_transformation(tf1)
+        self.data_flow.save()
 
         t1 = Task(3, dataflow_tag, "calculate_carga", "4")
         t1_input = DataSet("i{}1".format('calculate_carga'), [Element([datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])

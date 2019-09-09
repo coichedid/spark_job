@@ -1,4 +1,4 @@
-elapsedtimetotal
+
 from dfa_lib_python.dataflow import Dataflow
 from dfa_lib_python.transformation import Transformation
 from dfa_lib_python.attribute import Attribute

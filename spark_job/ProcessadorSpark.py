@@ -138,7 +138,7 @@ class ProcessadorSparkClass(object):
                 Attribute("aggregationunit", AttributeType.TEXT)
             ])
 
-        tf1_output = Set("o{}1".format('aggreg_intercambio'), SetType.OUTPUT,
+        tf1_output = Set("o{}1".format('aggreg_geracao'), SetType.OUTPUT,
           [
                 Attribute("currenttime", AttributeType.TEXT),
                 Attribute("elapsedtime", AttributeType.NUMERIC),

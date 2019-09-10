@@ -117,7 +117,7 @@ if __name__ == "__main__":
             Attribute("currenttime", AttributeType.TEXT)
         ])
 
-    tf2_output = Set("o{}1".format('load_data'), SetType.OUTPUT,
+    tf2_output = Set("o{}1".format('initial_data_stats'), SetType.OUTPUT,
       [
             Attribute("currenttime", AttributeType.TEXT),
             Attribute("elapsedtime", AttributeType.NUMERIC)
@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
     t3 = Task(3, dataflow_tag, "process_data", "1")
     t3_input = DataSet("i{}1".format('process_data'), [Element([aggreg_unit, datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
-    t3.add_dataset(t2_input)
+    t3.add_dataset(t3_input)
     t3.begin()
 
     st_time = time.time()
@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     t4 = Task(4, dataflow_tag, "convert_data_to_list", "1")
     t4_input = DataSet("i{}1".format('convert_data_to_list'), [Element([aggreg_unit, datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
-    t4.add_dataset(t2_input)
+    t4.add_dataset(t4_input)
     t4.begin()
 
     # TODO: Publicar execução do process_data com a variável stats

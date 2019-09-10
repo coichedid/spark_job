@@ -130,24 +130,7 @@ class ProcessadorSparkClass(object):
 
         """
         st_time = time.time()
-        tf1 = Transformation('aggreg_geracao') ## Usando o nome da task spark
-        tf1_input = Set("i{}1".format('aggreg_geracao'), SetType.INPUT,
-            [
-                Attribute("tablename", AttributeType.TEXT),
-                Attribute("currenttime", AttributeType.TEXT),
-                Attribute("aggregationunit", AttributeType.TEXT)
-            ])
 
-        tf1_output = Set("o{}1".format('aggreg_geracao'), SetType.OUTPUT,
-          [
-                Attribute("currenttime", AttributeType.TEXT),
-                Attribute("elapsedtime", AttributeType.NUMERIC),
-                Attribute("recordcount", AttributeType.NUMERIC)
-          ])
-
-        tf1.set_sets([tf1_input, tf1_output])
-        self.data_flow.add_transformation(tf1)
-        self.data_flow.save()
 
         t1 = Task(3, self.dataflow_tag, "aggreg_geracao", "2")
         t1_input = DataSet("i{}1".format('aggreg_geracao'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
@@ -200,24 +183,7 @@ class ProcessadorSparkClass(object):
 
         """
         st_time = time.time()
-        tf1 = Transformation('aggreg_intercambio') ## Usando o nome da task spark
-        tf1_input = Set("i{}1".format('aggreg_intercambio'), SetType.INPUT,
-            [
-                Attribute("tablename", AttributeType.TEXT),
-                Attribute("currenttime", AttributeType.TEXT),
-                Attribute("aggregationunit", AttributeType.TEXT)
-            ])
 
-        tf1_output = Set("o{}1".format('aggreg_intercambio'), SetType.OUTPUT,
-          [
-                Attribute("currenttime", AttributeType.TEXT),
-                Attribute("elapsedtime", AttributeType.NUMERIC),
-                Attribute("recordcount", AttributeType.NUMERIC)
-          ])
-
-        tf1.set_sets([tf1_input, tf1_output])
-        self.data_flow.add_transformation(tf1)
-        self.data_flow.save()
 
         t1 = Task(3, self.dataflow_tag, "aggreg_intercambio", "3")
         t1_input = DataSet("i{}1".format('aggreg_intercambio'), [Element([table_name,datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])
@@ -268,29 +234,7 @@ class ProcessadorSparkClass(object):
         """
         st_time = time.time()
         st_time_total = time.time()
-        tf1 = Transformation('calculate_carga') ## Usando o nome da task spark
-        tf1_input = Set("i{}1".format('calculate_carga'), SetType.INPUT,
-            [
-                Attribute("currenttime", AttributeType.TEXT),
-                Attribute("aggregationunit", AttributeType.TEXT)
-            ])
 
-        tf1_output = Set("o{}1".format('calculate_carga'), SetType.OUTPUT,
-          [
-                Attribute("currenttime", AttributeType.TEXT),
-                Attribute("elapsedtime", AttributeType.NUMERIC),
-                Attribute("elapsedtimeloadgeracao", AttributeType.NUMERIC),
-                Attribute("elapsedtimeloadintercambio", AttributeType.NUMERIC),
-                Attribute("elapsedtimeloadcarga", AttributeType.NUMERIC),
-                Attribute("elapsedtimecalccarga", AttributeType.NUMERIC),
-                Attribute("elapsedtimecalcstats", AttributeType.NUMERIC),
-                Attribute("subsistemamaisdemandante", AttributeType.TEXT),
-                Attribute("valormaisalto", AttributeType.NUMERIC)
-          ])
-
-        tf1.set_sets([tf1_input, tf1_output])
-        self.data_flow.add_transformation(tf1)
-        self.data_flow.save()
 
         t1 = Task(3, self.dataflow_tag, "calculate_carga", "4")
         t1_input = DataSet("i{}1".format('calculate_carga'), [Element([datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), aggreg_unit])])

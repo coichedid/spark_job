@@ -80,6 +80,110 @@ if __name__ == "__main__":
 
     tf1.set_sets([tf1_input, tf1_output])
     df.add_transformation(tf1)
+    tf2 = Transformation('initial_data_stats') ## Usando o nome da task spark
+    tf2_input = Set("i{}1".format('initial_data_stats'), SetType.INPUT,
+        [
+            Attribute("currenttime", AttributeType.TEXT)
+        ])
+
+    tf2_output = Set("o{}1".format('initial_data_stats'), SetType.OUTPUT,
+      [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("elapsedtime", AttributeType.NUMERIC)
+      ])
+
+    tf2.set_sets([tf2_input, tf2_output])
+    df.add_transformation(tf2)
+    tf3 = Transformation('process_data') ## Usando o nome da task spark
+    tf3_input = Set("i{}1".format('process_data'), SetType.INPUT,
+        [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("aggregationunit", AttributeType.TEXT)
+        ])
+
+    tf3_output = Set("o{}1".format('process_data'), SetType.OUTPUT,
+      [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("elapsedtime", AttributeType.NUMERIC)
+      ])
+
+    tf3.set_sets([tf3_input, tf3_output])
+    df.add_transformation(tf3)
+    tf4 = Transformation('convert_data_to_list') ## Usando o nome da task spark
+    tf4_input = Set("i{}1".format('convert_data_to_list'), SetType.INPUT,
+        [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("aggregationunit", AttributeType.TEXT)
+        ])
+
+    tf4_output = Set("o{}1".format('convert_data_to_list'), SetType.OUTPUT,
+      [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("elapsedtime", AttributeType.NUMERIC),
+            Attribute("num_records", AttributeType.NUMERIC)
+      ])
+
+    tf4.set_sets([tf4_input, tf4_output])
+    df.add_transformation(tf4)
+
+    tf5 = Transformation('aggreg_geracao') ## Usando o nome da task spark
+    tf5_input = Set("i{}1".format('aggreg_geracao'), SetType.INPUT,
+        [
+            Attribute("tablename", AttributeType.TEXT),
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("aggregationunit", AttributeType.TEXT)
+        ])
+
+    tf5_output = Set("o{}1".format('aggreg_geracao'), SetType.OUTPUT,
+      [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("elapsedtime", AttributeType.NUMERIC),
+            Attribute("recordcount", AttributeType.NUMERIC)
+      ])
+
+    tf5.set_sets([tf5_input, tf5_output])
+    df.add_transformation(tf5)
+
+    tf6 = Transformation('aggreg_intercambio') ## Usando o nome da task spark
+    tf6_input = Set("i{}1".format('aggreg_intercambio'), SetType.INPUT,
+        [
+            Attribute("tablename", AttributeType.TEXT),
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("aggregationunit", AttributeType.TEXT)
+        ])
+
+    tf6_output = Set("o{}1".format('aggreg_intercambio'), SetType.OUTPUT,
+      [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("elapsedtime", AttributeType.NUMERIC),
+            Attribute("recordcount", AttributeType.NUMERIC)
+      ])
+
+    tf6.set_sets([tf6_input, tf6_output])
+    df.add_transformation(tf6)
+
+    tf7 = Transformation('calculate_carga') ## Usando o nome da task spark
+    tf7_input = Set("i{}1".format('calculate_carga'), SetType.INPUT,
+        [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("aggregationunit", AttributeType.TEXT)
+        ])
+
+    tf7_output = Set("o{}1".format('calculate_carga'), SetType.OUTPUT,
+      [
+            Attribute("currenttime", AttributeType.TEXT),
+            Attribute("elapsedtime", AttributeType.NUMERIC),
+            Attribute("elapsedtimeloadgeracao", AttributeType.NUMERIC),
+            Attribute("elapsedtimeloadintercambio", AttributeType.NUMERIC),
+            Attribute("elapsedtimeloadcarga", AttributeType.NUMERIC),
+            Attribute("elapsedtimecalccarga", AttributeType.NUMERIC),
+            Attribute("elapsedtimecalcstats", AttributeType.NUMERIC),
+            Attribute("subsistemamaisdemandante", AttributeType.TEXT),
+            Attribute("valormaisalto", AttributeType.NUMERIC)
+      ])
+
+    tf7.set_sets([tf7_input, tf7_output])
+    df.add_transformation(tf7)
     df.save()
 
     t1 = Task(1, dataflow_tag, "load_data", "1")
@@ -111,21 +215,7 @@ if __name__ == "__main__":
 
     ##PROVENIÊNCIA PROSPECTIVA
     #Transformação para extrair o primeiro stats: ExtrairStats1
-    tf2 = Transformation('initial_data_stats') ## Usando o nome da task spark
-    tf2_input = Set("i{}1".format('initial_data_stats'), SetType.INPUT,
-        [
-            Attribute("currenttime", AttributeType.TEXT)
-        ])
 
-    tf2_output = Set("o{}1".format('initial_data_stats'), SetType.OUTPUT,
-      [
-            Attribute("currenttime", AttributeType.TEXT),
-            Attribute("elapsedtime", AttributeType.NUMERIC)
-      ])
-
-    tf2.set_sets([tf2_input, tf2_output])
-    df.add_transformation(tf2)
-    df.save()
     t2 = Task(2, dataflow_tag, "initial_data_stats", "1")
     t2_input = DataSet("i{}1".format('initial_data_stats'), [Element([datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
     t2.add_dataset(t2_input)
@@ -160,22 +250,7 @@ if __name__ == "__main__":
 
     ##PROVENIÊNCIA PROSPECTIVA
     #Transformação para extrair o primeiro stats: ExtrairStats1
-    tf3 = Transformation('process_data') ## Usando o nome da task spark
-    tf3_input = Set("i{}1".format('process_data'), SetType.INPUT,
-        [
-            Attribute("currenttime", AttributeType.TEXT),
-            Attribute("aggregationunit", AttributeType.TEXT)
-        ])
 
-    tf3_output = Set("o{}1".format('process_data'), SetType.OUTPUT,
-      [
-            Attribute("currenttime", AttributeType.TEXT),
-            Attribute("elapsedtime", AttributeType.NUMERIC)
-      ])
-
-    tf3.set_sets([tf3_input, tf3_output])
-    df.add_transformation(tf3)
-    df.save()
 
     t3 = Task(3, dataflow_tag, "process_data", "1")
     t3_input = DataSet("i{}1".format('process_data'), [Element([aggreg_unit, datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
@@ -200,23 +275,7 @@ if __name__ == "__main__":
 
     ##PROVENIÊNCIA PROSPECTIVA
     #Transformação para extrair o primeiro stats: ExtrairStats1
-    tf4 = Transformation('convert_data_to_list') ## Usando o nome da task spark
-    tf4_input = Set("i{}1".format('convert_data_to_list'), SetType.INPUT,
-        [
-            Attribute("currenttime", AttributeType.TEXT),
-            Attribute("aggregationunit", AttributeType.TEXT)
-        ])
 
-    tf4_output = Set("o{}1".format('convert_data_to_list'), SetType.OUTPUT,
-      [
-            Attribute("currenttime", AttributeType.TEXT),
-            Attribute("elapsedtime", AttributeType.NUMERIC),
-            Attribute("num_records", AttributeType.NUMERIC)
-      ])
-
-    tf4.set_sets([tf4_input, tf4_output])
-    df.add_transformation(tf4)
-    df.save()
 
     t4 = Task(4, dataflow_tag, "convert_data_to_list", "1")
     t4_input = DataSet("i{}1".format('convert_data_to_list'), [Element([aggreg_unit, datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")])])
